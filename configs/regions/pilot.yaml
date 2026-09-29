@@ -1,0 +1,69 @@
+# configs/regions/pilot.yaml
+# Pilot region and hindcast event for the SIH26071 rainfall early-warning / inundation system.
+#
+# Bounding boxes are geographic (EPSG:4326) with explicit west/south/east/north keys.
+# Spatial resolution rule: 0.1 deg is native IMERG resolution. Any finer rainfall product is
+# labelled 'downscaled' to maintain scientific honesty.
+
+region:
+  id: chennai_michaung_2023
+  name: Chennai Metropolitan Area
+  state: Tamil Nadu
+  country: IN
+  timezone: Asia/Kolkata
+  geographic_crs: EPSG:4326
+  projected_crs: EPSG:32644   # UTM zone 44N: metric distances, areas and flow computations
+
+event:
+  name: Cyclone Michaung
+  # Full data window: lead-up, heavy rain and recession
+  window_start_utc: "2023-11-30T00:00:00Z"
+  window_end_utc: "2023-12-08T00:00:00Z"
+  # Heavy-rainfall period over Chennai: focus of the hindcast and verification
+  focus_start_utc: "2023-12-03T00:00:00Z"
+  focus_end_utc: "2023-12-06T00:00:00Z"
+
+domains:
+  # Proposed wider domain providing Bay of Bengal ocean context:
+  # Cyclone Michaung's rainbands propagate northwestwards at 30-45 km/h.
+  # Extending east to 84.0 E provides ~400 km of offshore fetch (8-10 h advance notice of convective bands).
+  rainfall:
+    west: 78.0
+    south: 10.5
+    east: 84.0
+    north: 15.5
+  # Original compact domain (kept for reference / ablation):
+  rainfall_compact:
+    west: 78.5
+    south: 11.5
+    east: 81.5
+    north: 14.5
+  # Inundation modelling domain: city plus the Adyar, Cooum and Kosasthalaiyar basins
+  inundation:
+    west: 79.75
+    south: 12.70
+    east: 80.35
+    north: 13.45
+
+grids:
+  rainfall:
+    resolution_deg: 0.1       # Native IMERG resolution (~11 km); products at finer resolution are labelled downscaled
+    downscaled_resolution_deg: 0.02 # ~2.2 km: only used where downscaling models or radar provide verified skill
+    timestep_minutes: 30      # Matches IMERG half-hourly and INSAT cadence
+  inundation:
+    resolution_m: 30          # DEM-derived grid in EPSG:32644 (Copernicus GLO-30 / FABDEM)
+    coarse_resolution_m: 90   # Multi-resolution hydro grid for regional watershed routing
+
+forecast:
+  nowcast_horizon_minutes: 180
+  short_range_horizon_hours: 72
+  issue_interval_hours: 3     # Hindcast forecasts issued every 3 hours
+
+validation:
+  rainfall_truth:
+    - imerg_final
+    - imd_aws_arg
+    - imd_gridded_daily
+  flood_truth:
+    - sentinel1_flood_extent
+    - copernicus_ems_rapid_mapping

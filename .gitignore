@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.installed.cfg
+*.egg
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Testing & Type Checking
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Environment credentials
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large datasets & binaries (preserve .gitkeep)
+data/raw/*
+!data/raw/**/.gitkeep
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/**/.gitkeep
+!data/processed/.gitkeep
+data/interim/*
+!data/interim/**/.gitkeep
+!data/interim/.gitkeep
+data/external/*
+!data/external/**/.gitkeep
+!data/external/.gitkeep
+
+# Model weights & checkpoints (preserve .gitkeep)
+models/*
+!models/**/.gitkeep
+!models/.gitkeep
+
+# Output artifacts - keep small real result files, ignore only bulky placeholders
+outputs/forecasts/*
+!outputs/forecasts/**/.gitkeep
+!outputs/forecasts/*.json
+!outputs/forecasts/*.geojson
+outputs/inundation/*
+!outputs/inundation/**/.gitkeep
+!outputs/inundation/*.json
+!outputs/inundation/*.geojson
+!outputs/inundation/*.tif
+outputs/alerts/*
+!outputs/alerts/**/.gitkeep
+!outputs/alerts/*.json
+!outputs/alerts/*.xml

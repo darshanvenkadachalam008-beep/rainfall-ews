@@ -1,0 +1,110 @@
+{
+  "probe_executed_at_utc": "2026-09-23T04:12:15.461126+00:00",
+  "target_event": "Cyclone Michaung",
+  "target_probe_date": "2023-12-03 00:00",
+  "sources": {
+    "gpm_imerg": {
+      "early": {
+        "available": false,
+        "status_code": 404,
+        "url": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHHE.07/2023/337/3B-HHR-E.MS.MRG.3IMERG.20231203-S000000-E002959.0000-W0000.V07B.HDF5",
+        "file_size_mb": 0.0,
+        "latency_s": 6.71,
+        "requires_earthdata_login": true
+      },
+      "late": {
+        "available": false,
+        "status_code": 404,
+        "url": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHHL.07/2023/337/3B-HHR-L.MS.MRG.3IMERG.20231203-S000000-E002959.0000-W0000.V07B.HDF5",
+        "file_size_mb": 0.0,
+        "latency_s": 4.82,
+        "requires_earthdata_login": true
+      },
+      "final": {
+        "available": false,
+        "status_code": 404,
+        "url": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHH.07/2023/337/3B-HHR.MS.MRG.3IMERG.20231203-S000000-E002959.0000-W0000.V07B.HDF5",
+        "file_size_mb": 0.0,
+        "latency_s": 3.06,
+        "requires_earthdata_login": true
+      }
+    },
+    "noaa_gfs": {
+      "available": true,
+      "status_code": 200,
+      "grib_url": "https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.20231203/00/atmos/gfs.t00z.pgrb2.0p25.f003",
+      "idx_url": "https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.20231203/00/atmos/gfs.t00z.pgrb2.0p25.f003.idx",
+      "idx_size_bytes": 40464,
+      "earliest_available_cycle_date": "2021-03-22 (GFS v16 operational upgrade on AWS S3)",
+      "query_latency_s": 7.2
+    },
+    "ecmwf_opendata": {
+      "date": "20231203",
+      "time": 0,
+      "step": 0,
+      "available": false,
+      "error": "404 Client Error: Not Found for url: https://data.ecmwf.int/forecasts/20231203/00z/ifs/0p25/oper/20231203000000-0h-oper-fc.index",
+      "file_size_bytes": 0
+    },
+    "era5": {
+      "dataset": "reanalysis-era5-single-levels",
+      "api_url": "https://cds.climate.copernicus.eu/api",
+      "key_configured": false,
+      "available_historical": true,
+      "historical_coverage": "1940-present (verified coverage for Dec 2023)"
+    },
+    "copernicus_dem_glo30": {
+      "available": true,
+      "status_code": 200,
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N13_00_E080_00_DEM/Copernicus_DSM_COG_10_N13_00_E080_00_DEM.tif",
+      "tile_name": "Copernicus_DSM_COG_10_N13_00_E080_00_DEM",
+      "file_size_mb": 11.79,
+      "latency_s": 1.83,
+      "alternative_terrain": "FABDEM (Forest And Buildings removed DEM, non-commercial license CC-BY-NC-SA 4.0)"
+    },
+    "esa_worldcover": {
+      "available": true,
+      "status_code": 200,
+      "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N12E078_Map.tif",
+      "resolution_m": 10,
+      "file_size_mb": 113.55,
+      "latency_s": 1.16
+    },
+    "mosdac_insat": {
+      "portal": "https://www.mosdac.gov.in",
+      "api_accessible": true,
+      "status_code": 200,
+      "requires_captcha": true,
+      "recommended_workflow": "Order/download INSAT-3D/3DR L1B/L1C HDF5 files from MOSDAC portal and place them into data/raw/insat/ (e.g. 3RIMG_03DEC2023_*.h5)."
+    },
+    "sentinel1": {
+      "query_successful": true,
+      "scene_count": 2,
+      "scenes": [
+        {
+          "granule_name": "S1A_IW_GRDH_1SDV_20231130T003226_20231130T003251_051439_06353D_9270",
+          "start_time": "2023-11-30T00:32:26Z",
+          "stop_time": "2023-11-30T00:32:51Z",
+          "orbit": "DESCENDING",
+          "polarization": "VV+VH",
+          "size_mb": 0.0,
+          "download_url": null
+        },
+        {
+          "granule_name": "S1A_IW_GRDH_1SDV_20231130T003201_20231130T003226_051439_06353D_343D",
+          "start_time": "2023-11-30T00:32:01Z",
+          "stop_time": "2023-11-30T00:32:26Z",
+          "orbit": "DESCENDING",
+          "polarization": "VV+VH",
+          "size_mb": 0.0,
+          "download_url": null
+        }
+      ],
+      "published_alternatives": [
+        "Copernicus Emergency Management Service (EMS) Rapid Mapping",
+        "ISRO Bhuvan Disaster Services (Cyclone Michaung flood extent)",
+        "UNOSAT Rapid Inundation Mapping"
+      ]
+    }
+  }
+}

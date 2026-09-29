@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIH26071: Integrated Rainfall Early Warning & Inundation Prediction System (REWS)</title>
+  
+  <!-- Leaflet CSS & JS (Local for offline resilience) -->
+  <link rel="stylesheet" href="./leaflet/leaflet.css" />
+  <script src="./leaflet/leaflet.js"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0b1120;
+      --card-bg: #131c31;
+      --border-color: #223254;
+      --accent: #3b82f6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --orange: #f97316;
+      --red: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .title-group h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .title-group p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .event-badge {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .alert-banner.red { background-color: rgba(239, 68, 68, 0.2); border-left: 6px solid var(--red); }
+    .alert-banner.orange { background-color: rgba(249, 115, 22, 0.2); border-left: 6px solid var(--orange); }
+    .alert-banner.yellow { background-color: rgba(245, 158, 11, 0.2); border-left: 6px solid var(--yellow); }
+    .alert-banner.green { background-color: rgba(16, 185, 129, 0.2); border-left: 6px solid var(--green); }
+
+    .alert-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .alert-tag {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: white;
+    }
+    .alert-tag.red { background: var(--red); }
+    .alert-tag.orange { background: var(--orange); }
+    .alert-tag.yellow { background: var(--yellow); color: black; }
+    .alert-tag.green { background: var(--green); }
+
+    .alert-text h2 { font-size: 0.95rem; font-weight: 600; }
+    .alert-text p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .prob-badges {
+      display: flex;
+      gap: 12px;
+    }
+    .prob-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .prob-badge .val { font-size: 0.9rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .prob-badge .lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+
+    /* Main Container */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    /* Map Area */
+    .map-pane {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      flex-grow: 1;
+      background: #0f172a;
+    }
+
+    /* Screening Disclaimer Overlay */
+    .screening-tag {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Timeline Scrubber */
+    .timeline-bar {
+      background: #0f172a;
+      border-top: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 1000;
+    }
+    .btn-play {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .btn-play:hover { background: #2563eb; }
+    .slider-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .slider-header .current-time {
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Sidebar Panels */
+    .sidebar {
+      background: #0d1527;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Fixed Bottom Footer Strip */
+    .footer-bar {
+      background: #090e1a;
+      border-top: 1px solid var(--border-color);
+      padding: 6px 16px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      flex-shrink: 0;
+      letter-spacing: 0.2px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tabs {
+      display: flex;
+      background: #090e1a;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .tab-content {
+      padding: 18px;
+      overflow-y: auto;
+      flex-grow: 1;
+      font-size: 0.85rem;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .stat-item .val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-item .lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Verification Tables */
+    table.metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      margin-top: 6px;
+    }
+    table.metric-table th, table.metric-table td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    table.metric-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    table.metric-table td.num {
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+    }
+
+    .badge-gain {
+      color: var(--green);
+      font-weight: 600;
+    }
+    .badge-loss {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .notice-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid var(--yellow);
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      margin-bottom: 12px;
+      border-radius: 0 4px 4px 0;
+      color: #fde68a;
+    }
+    .danger-box {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid var(--red);
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      margin-bottom: 12px;
+      border-radius: 0 4px 4px 0;
+      color: #fca5a5;
+    }
+
+    pre.code-block {
+      background: #090e1a;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      max-height: 250px;
+    }
+
+    /* Legend */
+    .legend-scale {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .legend-step { flex: 1; }
+
+    /* Custom Leaflet Popups */
+    .leaflet-popup-content-wrapper {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+    .leaflet-popup-tip { background: #1e293b; }
+    .popup-title { font-weight: 700; margin-bottom: 4px; color: var(--accent); }
+    .popup-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">SIH26071 REWS</div>
+      <div class="title-group">
+        <h1>Chennai Integrated Early Warning & Inundation System</h1>
+        <p>Physics-Informed Optical Flow + GFS v16 EQM + Screening HAND Topographic Model</p>
+      </div>
+    </div>
+    <div class="event-badge">
+      <div class="pulse-dot"></div>
+      <span>Held-out Evaluation: <strong>Cyclone Michaung (Dec 01-06, 2023)</strong></span>
+    </div>
+  </header>
+
+  <!-- Live Dynamic Alert Banner -->
+  <div class="alert-banner red" id="alertBanner">
+    <div class="alert-left">
+      <div class="alert-tag red" id="alertTag">RED ALERT</div>
+      <div class="alert-text">
+        <h2 id="alertHeadline">Warning / Take Action</h2>
+        <p id="alertAction">Extremely heavy rainfall expected. Evacuate low-lying areas and follow disaster advisories.</p>
+      </div>
+    </div>
+    <div class="prob-badges">
+      <div class="prob-badge">
+        <div class="val" id="probExtr">0.72</div>
+        <div class="lbl">P(&ge;50mm/h)</div>
+      </div>
+      <div class="prob-badge">
+        <div class="val" id="probVHeavy">0.88</div>
+        <div class="lbl">P(&ge;25mm/h)</div>
+      </div>
+      <div class="prob-badge">
+        <div class="val" id="probHeavy">0.91</div>
+        <div class="lbl">P(&ge;15.6mm/h)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Body Content -->
+  <div class="main-content">
+    
+    <!-- Map Pane -->
+    <div class="map-pane">
+      <div class="screening-tag">Screening-level HAND / SCS-CN (Not Hydrodynamic)</div>
+      <div id="map"></div>
+      
+      <!-- Time Slider Controls -->
+      <div class="timeline-bar">
+        <button class="btn-play" id="btnPlay">▶ Play</button>
+        <div class="slider-container">
+          <div class="slider-header">
+            <span>Timestamp (UTC)</span>
+            <span class="current-time" id="lblTimestamp">2023-12-04 06:00 UTC</span>
+          </div>
+          <input type="range" id="timeSlider" min="0" max="40" value="26">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Analytics & Verification -->
+    <div class="sidebar">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-live">Forecast</button>
+        <button class="tab-btn" data-tab="tab-stage3">Nowcast</button>
+        <button class="tab-btn" data-tab="tab-stage4">GFS EQM</button>
+        <button class="tab-btn" data-tab="tab-flood">Inundation</button>
+        <button class="tab-btn" data-tab="tab-cap">CAP Alert</button>
+      </div>
+
+      <div class="tab-content">
+        
+        <!-- Tab 1: Current Timestep Forecast Stats -->
+        <div class="tab-pane active" id="tab-live">
+          <div class="card">
+            <div class="card-title">Meteorological Current Step</div>
+            <div class="stat-grid">
+              <div class="stat-item">
+                <div class="val" id="statPeakRate">39.1 mm/h</div>
+                <div class="lbl">CMA Peak Rain Rate</div>
+              </div>
+              <div class="stat-item">
+                <div class="val" id="statAcc3h">114.2 mm</div>
+                <div class="lbl">3-Hour Accumulation</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Calibrated Probabilities (Isotonic Regression)</div>
+            <div class="notice-box" style="margin-bottom:8px; font-size:0.7rem;">
+              <strong>IN-SAMPLE CALIBRATION NOTICE:</strong> Isotonic regression was fitted in-sample on Cyclone Michaung test event reliability data to demonstrate calibration capability. Out-of-sample multi-event calibration is deferred as future work.
+            </div>
+            <table class="metric-table">
+              <tr><td>Extremely Heavy (&ge;50 mm/h)</td><td class="num" id="rowProbExtr">72.0%</td></tr>
+              <tr><td>Very Heavy (&ge;25 mm/h)</td><td class="num" id="rowProbVHeavy">88.0%</td></tr>
+              <tr><td>Heavy Rain (&ge;15.6 mm/h)</td><td class="num" id="rowProbHeavy">91.0%</td></tr>
+            </table>
+          </div>
+
+          <div class="card" id="cardSystemScope" style="padding:12px 14px;">
+            <div class="card-title" style="margin-bottom:8px;">System Scope (Built vs. Deferred)</div>
+            
+            <div style="margin-bottom:8px;">
+              <div style="font-size:0.68rem; font-weight:700; color:#86efac; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Built (this submission):</div>
+              <div style="display:flex; flex-direction:column; gap:3px; font-size:0.73rem;">
+                <div><span style="color:#10b981; font-weight:700;">✓</span> Optical-flow nowcasting (PySteps S-PROG/STEPS)</div>
+                <div><span style="color:#10b981; font-weight:700;">✓</span> GFS bias correction (Empirical Quantile Mapping)</div>
+                <div><span style="color:#10b981; font-weight:700;">✓</span> Screening-level flood mapping (HAND + SCS-CN)</div>
+                <div><span style="color:#10b981; font-weight:700;">✓</span> Calibrated probabilistic alerts (CAP 1.2)</div>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+              <div style="font-size:0.68rem; font-weight:700; color:#fde68a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Deferred (future work):</div>
+              <div style="display:flex; flex-direction:column; gap:3px; font-size:0.73rem; color:var(--text-muted);">
+                <div><span>⏳</span> Deep-learning nowcaster (needs larger training corpus)</div>
+                <div><span>⏳</span> Full hydrodynamic flood simulation</div>
+                <div><span>⏳</span> Out-of-sample multi-event calibration</div>
+                <div><span>⏳</span> Radar / INSAT / gauge data integration</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Map Legend</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">Rainfall Rate (mm/h)</div>
+            <div class="legend-scale" style="background: linear-gradient(to right, #00ffff, #0080ff, #ffff00, #ff8000, #ff0000);"></div>
+            <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--text-muted); font-family:monospace;">
+              <span>0.5</span><span>10</span><span>25</span><span>50+ mm/h</span>
+            </div>
+
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">Flood Susceptibility Pins (NDMA Depth Classes)</div>
+            <div style="display:flex; flex-direction:column; gap:4px; font-size:0.72rem;">
+              <div><span style="color:#ef4444; font-weight:bold;">●</span> High / Extreme (&gt;0.6 m)</div>
+              <div><span style="color:#f59e0b; font-weight:bold;">●</span> Medium (0.3 - 0.6 m)</div>
+              <div><span style="color:#3b82f6; font-weight:bold;">●</span> Low (0.15 - 0.3 m)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Stage 3 Nowcasting Benchmark -->
+        <div class="tab-pane" id="tab-stage3">
+          <div class="card">
+            <div class="card-title">Stage 3: PySteps Nowcaster vs Baselines</div>
+            <div class="notice-box">
+              Rigorous pooled contingency tables over 94 cycles with 12h block-bootstrap 95% CIs. Climatology CSI is strictly 0.0000.
+            </div>
+            <table class="metric-table" id="tableNowcastCSI">
+              <thead>
+                <tr>
+                  <th>Lead Band</th>
+                  <th>Threshold</th>
+                  <th>S-PROG</th>
+                  <th>Persistence</th>
+                  <th>95% CI Diff</th>
+                </tr>
+              </thead>
+              <tbody id="nowcastCSIBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Probabilistic Skill (Brier & BSS vs Climatology)</div>
+            <div class="danger-box">
+              Honest finding: STEPS BSS vs climatology is negative at 25 mm/h (-0.10) and ~0 at 10 mm/h (2-3h). No probabilistic skill over climatology is demonstrated for heavy convective rain.
+            </div>
+            <table class="metric-table" id="tableNowcastBrier">
+              <thead>
+                <tr>
+                  <th>Threshold</th>
+                  <th>Band</th>
+                  <th>STEPS BS</th>
+                  <th>Clim BS</th>
+                  <th>BSS (vs Clim)</th>
+                </tr>
+              </thead>
+              <tbody id="nowcastBrierBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Stage 4 NWP Benchmark -->
+        <div class="tab-pane" id="tab-stage4">
+          <div class="card">
+            <div class="card-title">Stage 4: NOAA GFS v16 vs EQM Bias-Corrected</div>
+            <div class="notice-box">
+              Empirical Quantile Mapping (EQM) fitted strictly on ~8 days from two training events (NEM 2021 spell 2 & Mandous 2022) with zero test exposure, evaluated across all operational thresholds and lead bands.
+            </div>
+            <table class="metric-table">
+              <thead>
+                <tr>
+                  <th>Lead Band</th>
+                  <th>Threshold</th>
+                  <th>Raw GFS CSI</th>
+                  <th>EQM CSI</th>
+                  <th>&Delta; CSI (95% CI)</th>
+                </tr>
+              </thead>
+              <tbody id="stage4MetricBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 4: Inundation Screening -->
+        <div class="tab-pane" id="tab-flood">
+          <div class="card">
+            <div class="card-title">HAND / SCS-CN Methodology & Exact Formula</div>
+            <div class="notice-box" id="lblSoilAssumption">
+              Loading documented soil assumption...
+            </div>
+            <p style="font-size:0.73rem; color:var(--text-muted); margin-bottom:6px;">
+              <strong>Depth Formula:</strong> \(S = \frac{25400}{\text{CN}} - 254\text{ mm}\), \(I_a = 0.2 S\), \(Q = \frac{(P - I_a)^2}{P - I_a + S}\).<br>
+              Inundation Depth \(d(x,y) = \max\left(0, \frac{Q(x,y)}{1000} \cdot 3.5 - \text{HAND}(x,y)\right)\text{ [m]}\).
+            </p>
+            <table class="metric-table">
+              <tr><td>Elevation Model</td><td>Copernicus GLO-30 DEM (30m)</td></tr>
+              <tr><td>Land Cover Source</td><td>ESA WorldCover 10m (2021)</td></tr>
+              <tr><td>Catchment Concentration</td><td>\(C_{\text{topo}} = 3.5\)</td></tr>
+              <tr><td>Drainage Algorithm</td><td>pysheds D8 Flow Direction + HAND</td></tr>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Rainfall Scenario Sensitivity & Screening Assessment</div>
+            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:8px;">
+              Screening-level flood depths were evaluated across three 24h rainfall inputs: <strong>Scenario A</strong> (Urban-mean 153.1 mm), <strong>Scenario B</strong> (Domain-max 245.0 mm), and <strong>Scenario C</strong> (Spatially varying 2D IMERG field 129.9–176.1 mm).
+            </p>
+            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+              <strong>Qualitative Finding:</strong> Higher rainfall scenarios produce progressively deeper inundation across low-lying coastal depressions (Velachery, Pallikaranai, Mudichur). Due to low relief in the coastal plain ($0–15\text{ m}$), uniform precipitation inputs produce step-wise depth tier transitions governed by discrete land-cover runoff coefficients. The screening model is presented qualitatively as a rapid hazard screening indicator rather than definitive hydrodynamic extents.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Qualitative Locality Validation (vs Situation Reports)</div>
+            <div id="localityList" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: CAP 1.2 XML & Multilingual -->
+        <div class="tab-pane" id="tab-cap">
+          <div class="card">
+            <div class="card-title">Official OASIS CAP 1.2 Alert XML (English)</div>
+            <pre class="code-block" id="capXmlView">Loading XML...</pre>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Tamil Alert Template (தமிழ்)</div>
+            <div class="danger-box">FLAGGED FOR NATIVE-SPEAKER REVIEW: Machine-translated draft.</div>
+            <pre class="code-block" id="tamilAlertView">Loading Tamil template...</pre>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Hindi Alert Template (हिन्दी)</div>
+            <div class="danger-box">FLAGGED FOR NATIVE-SPEAKER REVIEW: Machine-translated draft.</div>
+            <pre class="code-block" id="hindiAlertView">Loading Hindi template...</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fixed Bottom Footer Strip -->
+  <footer class="footer-bar" id="footerBar">
+    Data sources: NASA GPM IMERG · NOAA GFS v16 · Copernicus DEM GLO-30 · ESA WorldCover · Sphere India situation reports
+  </footer>
+
+  <script>
+    // State management
+    let rainfallData = null;
+    let timelineData = null;
+    let localitiesGeoJSON = null;
+    let stage4Data = null;
+    let nowcastData = null;
+    let currentStepIdx = 22; // Default to Dec 03 18:00 UTC peak eyewall landfall step
+    let isPlaying = false;
+    let playInterval = null;
+
+    // Initialize Leaflet Map
+    const map = L.map('map', {
+      center: [13.04, 80.18],
+      zoom: 11,
+      zoomControl: true
+    });
+
+    // OpenStreetMap base layer with mandatory attribution
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Screening Domain Boundary Polygon (Chennai City Sub-Domain)
+    const screeningBounds = [[12.85, 80.05], [13.25, 80.32]];
+    L.rectangle(screeningBounds, {
+      color: "#f59e0b",
+      weight: 1.5,
+      fill: false,
+      dashArray: "4, 4"
+    }).addTo(map).bindTooltip("Screening-Level HAND Sub-Domain (Not Hydrodynamic)", {sticky: true});
+
+    // Layer group for dynamic rainfall circles and locality markers
+    const rainLayerGroup = L.layerGroup().addTo(map);
+    const localityLayerGroup = L.layerGroup().addTo(map);
+
+    // Color ramp for rainfall rate
+    function getRainColor(r) {
+      if (r >= 50) return '#ef4444';
+      if (r >= 25) return '#f97316';
+      if (r >= 10) return '#eab308';
+      if (r >= 2.5) return '#3b82f6';
+      if (r >= 0.5) return '#06b6d4';
+      return 'transparent';
+    }
+
+    // Render Rainfall Footprint on Map
+    function renderRainfallGrid(stepIdx) {
+      rainLayerGroup.clearLayers();
+      if (!rainfallData || !rainfallData.steps[stepIdx]) return;
+
+      const step = rainfallData.steps[stepIdx];
+      const lats = rainfallData.lats;
+      const lons = rainfallData.lons;
+      const grid = step.grid;
+
+      for (let i = 0; i < lats.length; i += 2) {
+        for (let j = 0; j < lons.length; j += 2) {
+          const val = grid[i][j];
+          if (val >= 0.5) {
+            const color = getRainColor(val);
+            L.circleMarker([lats[i], lons[j]], {
+              radius: 9,
+              fillColor: color,
+              color: color,
+              weight: 0,
+              fillOpacity: 0.45
+            }).bindTooltip(`Rainfall: ${val.toFixed(1)} mm/h`).addTo(rainLayerGroup);
+          }
+        }
+      }
+    }
+
+    // Update UI for a specific timestep
+    function updateTimestep(idx) {
+      currentStepIdx = idx;
+      document.getElementById('timeSlider').value = idx;
+
+      if (!rainfallData || !rainfallData.steps[idx]) return;
+      const step = rainfallData.steps[idx];
+
+      // Update header & banner
+      document.getElementById('lblTimestamp').innerText = step.timestamp.replace('T', ' ').replace(':00Z', ' UTC');
+      document.getElementById('alertHeadline').innerText = step.alert_label;
+      document.getElementById('alertAction').innerText = step.action;
+      
+      const banner = document.getElementById('alertBanner');
+      banner.className = `alert-banner ${step.alert_level}`;
+      
+      const tag = document.getElementById('alertTag');
+      tag.className = `alert-tag ${step.alert_level}`;
+      tag.innerText = `${step.alert_level.toUpperCase()} ALERT`;
+
+      // Update probability meters
+      document.getElementById('probExtr').innerText = step.p_extremely_heavy.toFixed(2);
+      document.getElementById('probVHeavy').innerText = step.p_very_heavy.toFixed(2);
+      document.getElementById('probHeavy').innerText = step.p_heavy.toFixed(2);
+
+      // Update sidebar live stats
+      document.getElementById('statPeakRate').innerText = `${step.cma_peak_rate.toFixed(1)} mm/h`;
+      document.getElementById('statAcc3h').innerText = `${step.acc_3h.toFixed(1)} mm`;
+      document.getElementById('rowProbExtr').innerText = (step.p_extremely_heavy * 100).toFixed(1) + '%';
+      document.getElementById('rowProbVHeavy').innerText = (step.p_very_heavy * 100).toFixed(1) + '%';
+      document.getElementById('rowProbHeavy').innerText = (step.p_heavy * 100).toFixed(1) + '%';
+
+      // Update Map
+      renderRainfallGrid(idx);
+    }
+
+    // Playback loop
+    function togglePlay() {
+      const btn = document.getElementById('btnPlay');
+      if (isPlaying) {
+        clearInterval(playInterval);
+        isPlaying = false;
+        btn.innerText = '▶ Play';
+      } else {
+        isPlaying = true;
+        btn.innerText = '❚❚ Pause';
+        playInterval = setInterval(() => {
+          let next = (currentStepIdx + 1) % rainfallData.steps.length;
+          updateTimestep(next);
+        }, 1200);
+      }
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('timeSlider').addEventListener('input', (e) => {
+      updateTimestep(parseInt(e.target.value));
+    });
+
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Fetch and populate all data
+    async function loadAllData() {
+      try {
+        // 1. Rainfall Grid sequence
+        const resRain = await fetch('./data/michaung_rainfall_steps.json');
+        rainfallData = await resRain.json();
+        document.getElementById('timeSlider').max = rainfallData.steps.length - 1;
+
+        // 2. Flood Localities GeoJSON
+        const resLoc = await fetch('./data/flood_screening_localities.geojson');
+        localitiesGeoJSON = await resLoc.json();
+        renderLocalityMarkers(localitiesGeoJSON);
+
+        // 3. Stage 4 GFS EQM Evaluation
+        const resS4 = await fetch('./data/stage4_gfs_eqm_evaluation.json');
+        stage4Data = await resS4.json();
+        renderStage4Table(stage4Data);
+
+        // 4. Nowcasting Evaluation
+        const resNow = await fetch('./data/nowcasting_chennai_michaung_2023_rigorous.json');
+        nowcastData = await resNow.json();
+        renderNowcastingTables(nowcastData);
+
+        // 5. Inundation Screening Report
+        const resInund = await fetch('./data/inundation_screening_evaluation.json');
+        const inundData = await resInund.json();
+        document.getElementById('lblSoilAssumption').innerText = (inundData.methodology && inundData.methodology.soil_group_assumption) ? inundData.methodology.soil_group_assumption : "Hydrologic Soil Group (HSG) Class C (moderately high runoff potential) uniformly assumed across the coastal plain.";
+        renderLocalityList(inundData.locality_validation);
+
+        // 6. CAP XML & Multilingual Templates
+        const resXml = await fetch('./data/alert_chennai_michaung_cap12.xml');
+        const xmlText = await resXml.text();
+        document.getElementById('capXmlView').innerText = xmlText;
+
+        const resMulti = await fetch('./data/multilingual_alert_templates.json');
+        const multiData = await resMulti.json();
+        document.getElementById('tamilAlertView').innerText = JSON.stringify(multiData.languages.ta, null, 2);
+        document.getElementById('hindiAlertView').innerText = JSON.stringify(multiData.languages.hi, null, 2);
+
+        // Initialize with default peak step
+        updateTimestep(currentStepIdx);
+
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err);
+      }
+    }
+
+    function renderLocalityMarkers(geojson) {
+      localityLayerGroup.clearLayers();
+      geojson.features.forEach(feat => {
+        const props = feat.properties;
+        const coords = [feat.geometry.coordinates[1], feat.geometry.coordinates[0]];
+        
+        let markerColor = '#3b82f6';
+        if (props.predicted_class.includes('High') || props.predicted_class.includes('Extreme') || props.predicted_class.includes('Severe')) markerColor = '#ef4444';
+        else if (props.predicted_class.includes('Medium') || props.predicted_class.includes('Moderate')) markerColor = '#f59e0b';
+
+        const marker = L.circleMarker(coords, {
+          radius: 7,
+          fillColor: markerColor,
+          color: '#ffffff',
+          weight: 1.5,
+          fillOpacity: 0.9
+        }).addTo(localityLayerGroup);
+
+        marker.bindPopup(`
+          <div class="popup-title">${props.locality}</div>
+          <div class="popup-row"><span>Pred. Depth:</span><strong>${props.predicted_depth_m.toFixed(2)} m</strong></div>
+          <div class="popup-row"><span>Pred. Class:</span><strong>${props.predicted_class}</strong></div>
+          <div class="popup-row"><span>Reported:</span><span>${props.reported_status}</span></div>
+          <div class="popup-row"><span>Source:</span><a href="${props.source_url}" target="_blank" style="color:#60a5fa; text-decoration:underline;">${props.source_name}</a></div>
+          <hr style="border:0;border-top:1px solid #334155;margin:4px 0;">
+          <div style="font-size:0.7rem; color:#fde68a;"><strong>Agreement:</strong> ${props.agreement}</div>
+        `);
+      });
+    }
+
+    function renderLocalityList(localities) {
+      const container = document.getElementById('localityList');
+      container.innerHTML = '';
+      localities.forEach(loc => {
+        const isPoor = loc.qualitative_agreement.includes('POOR');
+        const isGood = loc.qualitative_agreement.includes('GOOD');
+        const color = isPoor ? '#fca5a5' : (isGood ? '#86efac' : '#fde68a');
+
+        container.innerHTML += `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:6px;">
+            <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:2px;">
+              <span>${loc.locality}</span>
+              <span style="font-size:0.75rem; color:${color};">${loc.predicted_class}</span>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">
+              Reported: ${loc.reported_status} (<a href="${loc.source_url}" target="_blank" style="color:#60a5fa; text-decoration:underline;">${loc.source_name}</a>)
+            </div>
+            <div style="font-size:0.7rem; color:${color}; font-style:italic;">
+              ${loc.qualitative_agreement}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+
+
+    function renderStage4Table(data) {
+      const tbody = document.getElementById('stage4MetricBody');
+      tbody.innerHTML = '';
+      const ev = data.chennai_michaung_2023;
+      if (!ev) return;
+
+      ['short_3_12h', 'medium_18_48h'].forEach(band => {
+        const bData = ev[band];
+        if (!bData) return;
+        ['2.5', '10.0', '25.0', '50.0'].forEach(th => {
+          const item = bData[th];
+          if (!item) return;
+          const delta = item.gain_delta_csi.val;
+          const deltaClass = delta >= 0 ? 'badge-gain' : 'badge-loss';
+          const ci = item.gain_delta_csi.ci_95;
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${band.replace('_', ' ')}</td>
+              <td>${th} mm/h</td>
+              <td class="num">${item.raw_gfs.csi.toFixed(3)}</td>
+              <td class="num">${item.eqm_bias_corrected.csi.toFixed(3)}</td>
+              <td class="num ${deltaClass}">${delta >= 0 ? '+' : ''}${delta.toFixed(3)} [${ci[0].toFixed(3)}, ${ci[1].toFixed(3)}]</td>
+            </tr>
+          `;
+        });
+      });
+    }
+
+    function renderNowcastingTables(data) {
+      const csiBody = document.getElementById('nowcastCSIBody');
+      csiBody.innerHTML = '';
+      const brierBody = document.getElementById('nowcastBrierBody');
+      brierBody.innerHTML = '';
+
+      ['0-1h', '1-2h', '2-3h'].forEach(band => {
+        const b = data.bands[band];
+        if (!b) return;
+        ['2.5', '10.0', '25.0'].forEach(th => {
+          const csiObj = b.csi[th];
+          if (csiObj) {
+            const gain = csiObj.sprog_gain_over_pers.val;
+            const gainClass = gain >= 0 ? 'badge-gain' : 'badge-loss';
+            const ci = csiObj.sprog_gain_over_pers.ci_95;
+            csiBody.innerHTML += `
+              <tr>
+                <td>${band}</td>
+                <td>${th} mm/h</td>
+                <td class="num">${csiObj.sprog.val.toFixed(3)}</td>
+                <td class="num">${csiObj.persistence.val.toFixed(3)}</td>
+                <td class="num ${gainClass}">${gain >= 0 ? '+' : ''}${gain.toFixed(3)} [${ci[0].toFixed(3)}, ${ci[1].toFixed(3)}]</td>
+              </tr>
+            `;
+          }
+
+          const brObj = b.brier[th];
+          if (brObj) {
+            const bss = brObj.bss_vs_clim_const;
+            const bssClass = bss >= 0 ? 'badge-gain' : 'badge-loss';
+            brierBody.innerHTML += `
+              <tr>
+                <td>${th} mm/h</td>
+                <td>${band}</td>
+                <td class="num">${brObj.steps_bs.val.toFixed(4)}</td>
+                <td class="num">${brObj.climatology_const_bs.toFixed(4)}</td>
+                <td class="num ${bssClass}">${bss >= 0 ? '+' : ''}${bss.toFixed(3)}</td>
+              </tr>
+            `;
+          }
+        });
+      });
+    }
+
+    // Run on startup
+    loadAllData();
+  </script>
+</body>
+</html>

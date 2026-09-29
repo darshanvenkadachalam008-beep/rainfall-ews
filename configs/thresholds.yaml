@@ -1,0 +1,74 @@
+# configs/thresholds.yaml
+# IMD-aligned rainfall thresholds, alert levels, and verification parameters.
+
+imd_daily_classes:
+  light:
+    min_mm: 2.5
+    max_mm: 15.5
+  moderate:
+    min_mm: 15.6
+    max_mm: 64.4
+  heavy:
+    min_mm: 64.5
+    max_mm: 115.5
+  very_heavy:
+    min_mm: 115.6
+    max_mm: 204.4
+  extremely_heavy:
+    min_mm: 204.5
+    max_mm: null
+
+event_definition:
+  threshold_mm_24h: "64.5"
+
+verification:
+  fss_neighbourhood_km: [10, 20, 40, 80]
+  csi_thresholds_mm_h: [2.5, 10.0, 25.0, 50.0]
+
+alert_levels:
+  - id: green
+    label: "No Warning"
+    action: "Normal operations. No special action required."
+    triggers:
+      - class_min: "light"
+        probability_min: 0.0
+  - id: yellow
+    label: "Watch / Be Updated"
+    action: "Heavy rainfall expected. Keep track of local weather updates."
+    triggers:
+      - class_min: "heavy"
+        probability_min: 0.3
+  - id: orange
+    label: "Alert / Be Prepared"
+    action: "Very heavy rainfall expected. Prepare for possible waterlogging and disruption."
+    triggers:
+      - class_min: "very_heavy"
+        probability_min: 0.4
+  - id: red
+    label: "Warning / Take Action"
+    action: "Extremely heavy rainfall expected. Evacuate low-lying areas and follow disaster advisories."
+    triggers:
+      - class_min: "extremely_heavy"
+        probability_min: 0.5
+
+# NDMA Urban Flood Hazard Guidelines (2010) depth classes:
+# High: 0.6-1.0m (waist-deep, vehicle stall, ground-floor ingress)
+# Extreme: >1.0m (danger to life, structural submergence requiring rescue)
+flood_depth_classes:
+  low: [0.15, 0.3]
+  medium: [0.3, 0.6]
+  high: [0.6, 1.0]
+  extreme: [1.0, 99.0]
+
+
+inundation_verification:
+  metrics: ["iou", "csi", "pod", "far"]
+
+lead_time_bands_hours:
+  nowcasting: [1, 2, 3]
+  short_range: [6, 12, 24, 48, 72]
+
+loss_thresholds:
+  precipitation:
+    thresholds: [0.5, 2.5, 10.0, 15.6, 25.0, 50.0]
+    weights: [1.0, 2.0, 4.0, 8.0, 12.0, 16.0]

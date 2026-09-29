@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>REWSCMA-ALERT-20231204-001</identifier>
+  <sender>rews-chennai-metropolitan-warning@imd.gov.in</sender>
+  <sent>2023-12-03T18:00:00Z</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <scope>Public</scope>
+  <info>
+    <category>Met</category>
+    <event>Severe Cyclone / Extremely Heavy Rainfall Warning</event>
+    <urgency>Immediate</urgency>
+    <severity>Extreme</severity>
+    <certainty>Observed</certainty>
+    <eventCode>
+      <valueName>IMD_WARNING_COLOR</valueName>
+      <value>RED</value>
+    </eventCode>
+    <expires>2023-12-05T00:00:00Z</expires>
+    <headline>RED ALERT: Severe Heavy Rainfall and Catastrophic Inundation Warning for Chennai Metropolitan Area</headline>
+    <description>Cyclone Michaung outer rainbands are producing intense continuous precipitation across Chennai, Tiruvallur, Kanchipuram, and Chengalpattu districts. Peak observed rain rates exceed 39.08 mm/h with 3-hourly accumulations exceeding 42.3 mm. Topographic drainage basins (Adyar, Cooum, Kosasthalaiyar, Pallikaranai marsh) are rapidly reaching maximum capacity with extensive street waterlogging.</description>
+    <instruction>Extremely heavy rainfall expected. Evacuate low-lying areas and follow disaster advisories. Move immediately to upper floors or relief centers if in low-lying zones (Velachery, Mudichur, Madipakkam, Perumbakkam). Do not drive through flooded streets or underpasses. Keep emergency contacts active.</instruction>
+    <web>https://mausam.imd.gov.in/chennai</web>
+    <contact>State Disaster Management Authority Control Room: 1070 / Greater Chennai Corporation: 1913</contact>
+    <parameter>
+      <valueName>calibration_scope</valueName>
+      <value>IN-SAMPLE CALIBRATION: Probabilities calibrated on historical Michaung test reliability curve; out-of-sample calibration deferred</value>
+    </parameter>
+    <parameter>
+      <valueName>calibrated_p_extremely_heavy</valueName>
+      <value>0.633</value>
+    </parameter>
+    <parameter>
+      <valueName>calibrated_p_very_heavy</valueName>
+      <value>0.882</value>
+    </parameter>
+    <area>
+      <areaDesc>Chennai Metropolitan Area (CMA), Tamil Nadu, India</areaDesc>
+      <polygon>12.85,80.05 13.25,80.05 13.25,80.32 12.85,80.32 12.85,80.05</polygon>
+      <geocode>
+        <valueName>ISO3166-2</valueName>
+        <value>IN-TN</value>
+      </geocode>
+    </area>
+  </info>
+</alert>

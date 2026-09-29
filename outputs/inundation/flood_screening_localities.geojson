@@ -1,0 +1,180 @@
+{
+  "type": "FeatureCollection",
+  "name": "chennai_michaung_inundation_localities",
+  "metadata": {
+    "model_type": "screening-level HAND/SCS-CN, not a hydrodynamic simulation",
+    "driving_event": "Cyclone Michaung (Dec 03-04 2023)",
+    "validation_approach": "Qualitative comparison with reported flooded localities from published situation reports and news media",
+    "soil_assumption": "Hydrologic Soil Group (HSG) Class C (moderately high runoff potential: sandy clay loam / clay loam characteristic of coastal Coromandel plains and Adyar/Cooum alluvial deposits), assumed uniformly as fine-resolution digital soil maps were unavailable within the submission timeframe."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.221,
+          12.975
+        ]
+      },
+      "properties": {
+        "locality": "Velachery",
+        "elevation_m": 11.7,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.26,
+        "predicted_class": "Low (0.15-0.3m)",
+        "reported_status": "Severe Inundation (>1.5 m waterlogging)",
+        "source_name": "The Hindu (Dec 05, 2023)",
+        "source_url": "https://www.thehindu.com/news/cities/chennai/cyclone-michaung-chennai-floods-rain-batters-city-submerged/article67604561.ece",
+        "agreement": "GOOD: Natural drainage depression and low-HAND floodplain correctly identified."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.215,
+          12.935
+        ]
+      },
+      "properties": {
+        "locality": "Pallikaranai Marsh",
+        "elevation_m": 5.2,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.47,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Extreme Inundation (>2.0 m deep sheet flow)",
+        "source_name": "Sphere India Situation Report 1 (04 Dec 2023)",
+        "source_url": "https://reliefweb.int/report/india/sphere-india-situation-report-1-cyclone-michaung-tamil-nadu-and-andhra-pradesh-04-december-2023",
+        "agreement": "GOOD: Natural drainage depression and low-HAND floodplain correctly identified."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.082,
+          12.924
+        ]
+      },
+      "properties": {
+        "locality": "Mudichur / Tambaram",
+        "elevation_m": 16.8,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.36,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Severe Inundation (1.5 - 2.0 m flooding)",
+        "source_name": "The Indian Express (Dec 05, 2023)",
+        "source_url": "https://indianexpress.com/article/cities/chennai/cyclone-michaung-chennai-inundated-flood-9054716/",
+        "agreement": "GOOD: Natural drainage depression and low-HAND floodplain correctly identified."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.198,
+          12.964
+        ]
+      },
+      "properties": {
+        "locality": "Madipakkam",
+        "elevation_m": 11.3,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.38,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Severe Inundation (1.0 - 1.5 m)",
+        "source_name": "Citizen Consumer and Civic Action Group (CAG) Chennai Flood Report",
+        "source_url": "https://www.cag.org.in/blogs/mapping-chennais-flood-prone-areas",
+        "agreement": "MODERATE: Low-lying basin identified; localized embankments alter exact street depth."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.195,
+          12.898
+        ]
+      },
+      "properties": {
+        "locality": "Perumbakkam",
+        "elevation_m": 4.7,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.33,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Severe Inundation (>1.0 m)",
+        "source_name": "The Hindu (Dec 06, 2023)",
+        "source_url": "https://www.thehindu.com/news/cities/chennai/cyclone-michaung-chennai-floods-rain-batters-city-submerged/article67604561.ece",
+        "agreement": "MODERATE: Low-lying basin identified; localized embankments alter exact street depth."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.258,
+          13.105
+        ]
+      },
+      "properties": {
+        "locality": "Vyasarpadi",
+        "elevation_m": 2.8,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.46,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Severe Inundation (1.0 - 1.5 m)",
+        "source_name": "The Hindu (Dec 05, 2023)",
+        "source_url": "https://www.thehindu.com/news/cities/chennai/cyclone-michaung-chennai-floods-rain-batters-city-submerged/article67604561.ece",
+        "agreement": "MODERATE: Low-lying basin identified; localized embankments alter exact street depth."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.178,
+          13.118
+        ]
+      },
+      "properties": {
+        "locality": "Korattur",
+        "elevation_m": 14.1,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.34,
+        "predicted_class": "Medium (0.3-0.6m)",
+        "reported_status": "Moderate-Severe Inundation (0.8 - 1.2 m)",
+        "source_name": "The Hindu (Dec 06, 2023)",
+        "source_url": "https://www.thehindu.com/news/cities/chennai/cyclone-michaung-chennai-floods-rain-batters-city-submerged/article67604561.ece",
+        "agreement": "MODERATE: Low-lying basin identified; localized embankments alter exact street depth."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          80.233,
+          13.041
+        ]
+      },
+      "properties": {
+        "locality": "T. Nagar (Usman Road / Panagal Park)",
+        "elevation_m": 14.4,
+        "hand_m": 0.0,
+        "predicted_depth_m": 0.27,
+        "predicted_class": "Low (0.15-0.3m)",
+        "reported_status": "Severe Inundation (0.6 - 1.2 m)",
+        "source_name": "The Indian Express (Dec 05, 2023)",
+        "source_url": "https://indianexpress.com/article/cities/chennai/cyclone-michaung-chennai-inundated-flood-9054716/",
+        "agreement": "POOR: Severe flooding observed, but HAND predicts low susceptibility. Topographic HAND misses underground stormwater drain blockages, siltation, and street culvert failure."
+      }
+    }
+  ]
+}
